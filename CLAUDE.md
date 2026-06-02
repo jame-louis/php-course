@@ -68,6 +68,20 @@ draft: boolean
 ---
 ```
 
+### Self check Frontmatter Schema
+
+```yaml
+---
+question: string 
+answer: string 
+explanation: string
+module: string 
+tags: string[] 
+relatedLectures: string[] 
+draft: false
+---
+```
+
 ## Central Configuration
 
 `src/config.ts` is the single source of truth for site configuration:
