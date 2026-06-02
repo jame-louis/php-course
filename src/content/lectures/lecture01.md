@@ -45,7 +45,7 @@ PHP（PHP: Hypertext Preprocessor，即"PHP：超文本预处理器"）是一种
 
 ## B/S架构与动态网页原理
 
-```php
+```txt
 ┌─────────────┐      HTTP请求        ┌─────────────────────┐
 │   浏览器     │  ───────────────→   │   Web服务器(Apache)  │
 │  (Client)   │                     │        +            │
@@ -53,7 +53,8 @@ PHP（PHP: Hypertext Preprocessor，即"PHP：超文本预处理器"）是一种
                     返回HTML         │        +            │
                                     │   MySQL数据库        │
                                     └     (Server)        ┘ 
-```php
+```
+
 **工作流程：**
 1. 用户在浏览器输入URL
 2. 浏览器向Web服务器发送HTTP请求

@@ -19,12 +19,53 @@ const lectureNum = args.find(arg => /^\d+$/.test(arg));
 const SOURCE_DIR = path.join(process.cwd(), '_source');
 const LECTURES_DIR = path.join(process.cwd(), 'src/content/lectures');
 const SELFCHECKS_DIR = path.join(process.cwd(), 'src/content/selfchecks');
+const CONFIG_PATH = path.join(process.cwd(), 'src/config.ts');
 
-// Module assignment rules
-const MODULE_RULES = [
-  { range: [1, 8], module: '基础入门' },
-  { range: [9, 15], module: '核心概念' },
-];
+// Parse courseModules from config.ts
+function loadModulesFromConfig() {
+  try {
+    if (fs.existsSync(CONFIG_PATH)) {
+      const configContent = fs.readFileSync(CONFIG_PATH, 'utf-8');
+
+      // Extract courseModules array using regex
+      const modulesMatch = configContent.match(/export\s+const\s+courseModules\s*=\s*\[([\s\S]*?)\]\s+as\s+const/);
+      if (modulesMatch) {
+        const modulesContent = modulesMatch[1];
+        // Extract name fields from each module object
+        const nameMatches = modulesContent.matchAll(/name:\s*['"`]([^'"`]+)['"`]/g);
+        const modules = Array.from(nameMatches).map(m => m[1]);
+        if (modules.length > 0) {
+          return modules;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('⚠️  Could not parse config.ts, using default modules');
+  }
+
+  // Default fallback modules
+  return ['基础入门', '核心概念'];
+}
+
+// Build module assignment rules dynamically based on lecture count
+function buildModuleRules(modules) {
+  const rules = [];
+  // Distribute lectures evenly across modules
+  // Assuming max 16 lectures, distribute across available modules
+  const lecturesPerModule = Math.ceil(16 / modules.length);
+
+  for (let i = 0; i < modules.length; i++) {
+    const start = i * lecturesPerModule + 1;
+    const end = (i + 1) * lecturesPerModule;
+    rules.push({ range: [start, end], module: modules[i] });
+  }
+
+  return rules;
+}
+
+// Load modules and build rules
+const AVAILABLE_MODULES = loadModulesFromConfig();
+const MODULE_RULES = buildModuleRules(AVAILABLE_MODULES);
 
 // Ensure directories exist
 function ensureDirs() {

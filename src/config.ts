@@ -1,15 +1,15 @@
 // Site configuration
 export const site = {
-  title: '课程网站',
-  description: '基于 Astro 的课程内容管理系统',
+  title: 'PHP',
+  description: 'PHP基础知识、表单以及数据库操作',
   lang: 'zh-CN',
   separator: ' - ',
 } as const;
 
 // Course information
 export const courseInfo = {
-  name: '课程',
-  subtitle: '专业必修/选修课',
+  name: 'PHP',
+  subtitle: '专业必修课',
   description: '在这里填写课程的简要描述，介绍课程目标、适用人群和学习成果。',
   textbook: '《示例教材》(出版社)',
   prerequisites: '计算机基础、程序设计入门',
@@ -49,7 +49,9 @@ export const pageTitles = {
 // Course modules
 export const courseModules = [
   { name: '基础入门', description: '课程介绍、环境搭建、开发工具' },
-  { name: '核心概念', description: '响应式设计、组件化思想、现代前端开发流程' },
+  { name: '函数与类', description: 'PHP 函数、类与对象、继承与多态' },
+  { name: "表单与会话", description: "PHP 表单处理、会话管理" },
+  { name: '数据库操作', description: 'PHP 数据库连接、查询、插入、更新、删除' },
 ] as const;
 
 export const moduleNames = courseModules.map(m => m.name);

@@ -21,10 +21,15 @@ Generate lecture content and self-checks from `_source/lecturexx.md` files.
 4. **Confirm**: User reviews and optionally edits any field
 5. **Generate**: Creates files in `src/content/lectures/` and `src/content/selfchecks/`
 
-## Module Assignment Rules (Default)
+## Module Assignment Rules
 
-- Lectures 1-8 → `基础入门`
-- Lectures 9-15 → `核心概念`
+Modules are dynamically loaded from `src/config.ts`'s `courseModules` array. Lectures are distributed evenly across available modules.
+
+For example, with 4 modules and max 16 lectures:
+- Lectures 1-4 → Module 1
+- Lectures 5-8 → Module 2
+- Lectures 9-12 → Module 3
+- Lectures 13-16 → Module 4
 
 User can override during confirmation step.
 
@@ -65,7 +70,8 @@ This skill executes `scripts/generate-lecture.cjs` with the provided arguments.
    - Extract title from first `# ` heading
    - Count code blocks, tables, images to estimate complexity
    - Generate description from first paragraph or summary
-   - Assign module based on lecture number (1-8=基础入门, 9+=核心概念)
+   - Load modules from `src/config.ts`'s `courseModules` array
+   - Assign module based on lecture number (evenly distributed across available modules)
    - Determine difficulty (beginner: 1-3, intermediate: 4-8, advanced: 9+)
 
 4. **Present batch table** (if `--all`) or single lecture preview:
