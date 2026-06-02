@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { rehypeAssetPrefix } from './src/plugins/rehypeAssetPrefix.mjs';
 
 export default defineConfig({
   site: 'https://jame-louis.github.io',
@@ -15,7 +16,8 @@ export default defineConfig({
     },
     rehypePlugins: [
       rehypeSlug,
-      [rehypeAutolinkHeadings, { behavior: 'wrap' }]
+      [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+      [rehypeAssetPrefix, '/php-course']
     ]
   }
 });
