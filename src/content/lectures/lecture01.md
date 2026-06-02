@@ -87,15 +87,15 @@ PHP（PHP: Hypertext Preprocessor，即"PHP：超文本预处理器"）是一种
 
 - [Warmpserver安装教程 - CSDN](https://blog.csdn.net/ba_qi/article/details/102736014)
 
-![PHP/Attachments/setup-01.png](/assets/PHP/Attachments/setup-01.png)
+![setup-01.png](/assets/setup-01.png)
 
-![PHP/Attachments/setup-02.png](/assets/PHP/Attachments/setup-02.png)
+![setup-02.png](/assets/setup-02.png)
 
-![PHP/Attachments/setup-03.png](/assets/PHP/Attachments/setup-03.png)
+![setup-03.png](/assets/setup-03.png)
 
-![PHP/Attachments/setup-04.png](/assets/PHP/Attachments/setup-04.png)
+![setup-04.png](/assets/setup-04.png)
 
-![PHP/Attachments/setup-05.png](/assets/PHP/Attachments/setup-05.png)
+![setup-05.png](/assets/setup-05.png)
 
 ![setup-06.png](/assets/setup-06.png)
 
