@@ -72,7 +72,8 @@ draft: false
 <?php
 	echo "Hello, PHP!";
 ?>
-```php
+```
+
 ## PHP开发基础
 
 ### PHP基本语法
@@ -87,15 +88,18 @@ draft: false
 <?php
 	echo "Hello world!";
 ?>
-```php
+```
+
 ---
 ```php
 // 简短风格
 <?
 	echo "PHP short style!";
 ?>
-```php
+```
+
 ---
+
 ```php
 // 脚本风格
 // PHP7.0以前的版本支持脚本风格
@@ -103,15 +107,18 @@ draft: false
 <script language="php">
 	echo "PHP script style";
 </script>
-```php
+```
+
 ---
+
 ```php
 // ASP风格
 // PHP 5.3.0以后版本不再支持这种风格
 <%
 	echo "PHP ASP style";
 %>
-```php
+```
+
 #### PHP注释
 
 - 单行注释：“//” 或者 “#”
@@ -122,7 +129,8 @@ draft: false
 	echo 'C++ style'; // C++
 	echo 'Shell style'; # Shell
 ?>
-```php
+```
+
 ---
 ```php
 <?php
@@ -134,7 +142,8 @@ draft: false
 	echo 'hello';
 	echo 'world';
 ?>
-```php
+```
+
 #### PHP语句和语句块
 
 - PHP程序由一条或多条PHP语句构成，每条语句都以英文分毫“;“结束
@@ -151,7 +160,8 @@ draft: false
 		$i++;
 	}
 ?>
-```php
+```
+
 #### PHP 编程规范
 
 - 编码规范是一套某种编程语言的导引手册，这种导引手册规定了一系列该语言的默认编程风格，用来增强这种语言的可读性、规范性和可维护性。
@@ -180,7 +190,8 @@ define(
 	mixed value,
 	caseSensitive=true
 ) 
-```php
+```
+
 ---
 ```php
 <?php
@@ -196,7 +207,8 @@ echo "A diameter of". $ diameter . "<br />";
 echo "A circumference of". $circumference . "<br />";
 echo "An area of". $area . "<br />";
 ?> 
-```php
+```
+
 ---
 ```php
 <?php echo"当前文件路径为："._FILE_;//使用_FILE常量获取当前文件路径 
@@ -205,7 +217,8 @@ echo"当前行数为："._LINE_; //使用 LINE常量获取当前所在行号
 echo"<br>"; 
 echo"当前PHP版本信息为："PHP_VERSION; //使用PHP_VERSION常量获取当前PHP版本 
 echo"<br>";
-```php
+```
+
 ---
 ### 变量
 
@@ -225,13 +238,13 @@ PHP中的变量名称遵循以下约定：
 
 ```php
 $hello $Aform1 
-```php
+```
 以下为非法变量名：
 
 ```php
 $168
 $!like 
-```php
+```
 ---
 #### 变量作用域
 
@@ -257,7 +270,8 @@ function fun()
 fun();
 echo $a;
 ?> 
-```php
+```
+
 ### 数据 类型
 
 #### 标量类型
@@ -280,7 +294,8 @@ echo $a;
 	echo "数字12十进制结果为:$str2<br>";
 	echo "数字12十进制结果为:$str3<br>";
 ?> 
-```php
+```
+
 ```php
 <?php
 	echo "请看圆周率的三种写法: ";
@@ -293,7 +308,8 @@ echo $a;
 	$str2=3.14159265359E-11;
 	echo $str2."<br>";
 ?>
-```php
+```
+
 ```php
 <?php
 $str=true;
@@ -309,7 +325,8 @@ else
     echo $str."<br>";
 }
 ?> 
-```php
+```
+
 ```php
 <?php
 $str="你好, 欢迎访问网站 PHP 乐园! : ";
@@ -319,7 +336,8 @@ echo "这是单引号的输出结果: <br>";
 echo "$str <$br>";
 }
 ?>
-```php
+```
+
 - 单引号：输出变量的名字
 - 双引号：输出变量的值
 
@@ -333,7 +351,8 @@ echo "$str <$br>";
 
 ```php
 $array = ("value1","value2",...);
-```php
+```
+
 ```php
 <?php
 $arr=array(0=>1, 1=>2);
@@ -345,7 +364,8 @@ $arr=array('hi' => "hello");
 echo "字符串下标输出结果: <br>";
 echo $arr['hi'];
 ?> 
-```php
+```
+
 #### 特殊类型
 
 
@@ -376,7 +396,8 @@ echo $arr['hi'];
 	echo $c;
 	echo "<br>";
 ?> 
-```php
+```
+
 <table><tr><td>函数</td><td>检测类型</td></tr><tr><td>is bool</td><td>检测变量是否为布尔型</td></tr><tr><td>is_string</td><td>检测变量是否为字符串型</td></tr><tr><td>is_float</td><td>检测变量是否为浮点型</td></tr><tr><td>is_null</td><td>检测变量是否为空值</td></tr><tr><td>is_array</td><td>检测变量是否为数组类型</td></tr><tr><td>is_object</td><td>检测变量是否为对象类型</td></tr><tr><td>is_numeric</td><td>检测变量是否为数字或由数字组成的字符串</td></tr></table>
 
 
@@ -401,7 +422,8 @@ echo $arr['hi'];
 	var_dump($str);
 	echo "<br>";
 ?> 
-```php
+```
+
 ### 数据的输出
 
 - echo
@@ -454,4 +476,4 @@ $a=5;
 $b=2;
 echo $a."+".$b."=”; //".为连接字符串运算符,这里是为了输出 5+2=7 这样的表达式
 echo $a+$b."<br />";
-```php
+```
