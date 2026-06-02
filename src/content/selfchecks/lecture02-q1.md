@@ -1,9 +1,9 @@
 ---
-question: '什么是PHPStudy安装？'
-answer: 'PHPStudy安装是本讲介绍的重要概念，请参考详细说明。'
-explanation: '本题考察对"PHPStudy安装"的理解。- 新建一个PHP文件：hello.php'
+question: 'PHP中有哪几种标记风格？分别是什么？'
+answer: 'PHP中有四种标记风格：1) XML风格（<?php ... ?>，推荐）；2) 简短风格（<? ... ?>）；3) 脚本风格（<script language="php">...</script>）；4) ASP风格（<% ... %>，PHP 5.3.0后不再支持）。'
+explanation: 'XML风格是最常用的PHP标记方式，符合XML规范，在所有PHP环境中都可用。简短风格需要php.ini中开启short_open_tag配置。'
 module: '基础入门'
-tags: ['函数', '数组', '面向对象', '数据库', '文件操作', 'concept']
+tags: ['PHP语法', 'concept']
 relatedLectures: ['lecture02']
 draft: false
 ---

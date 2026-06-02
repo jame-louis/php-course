@@ -1,20 +1,19 @@
 ---
-title: 第2讲
+title: PHP开发基础与运算符
 lectureNumber: 2
 module: '基础入门'
-description: '- 新建一个PHP文件：hello.php'
+description: '学习PHP基本语法、常量、变量、数据类型以及各类运算符的使用方法。'
 duration: '90分钟'
 difficulty: 'beginner'
 prerequisites: ['lecture01']
-tags: ['函数', '数组', '面向对象', '数据库', '文件操作']
+tags: ['PHP语法', '变量', '数据类型', '运算符']
 hasSlides: true
 hasAssignment: false
 draft: false
 ---
 
+# PHP开发基础与运算符
 
-- PHP开发基础
-- 运算符和表达式
 ## PHPStudy安装
 
 ### 安装PhPStudy（一）

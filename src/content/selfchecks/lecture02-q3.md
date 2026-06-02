@@ -1,9 +1,9 @@
 ---
-question: '什么是安装PHPStudy （二）？'
-answer: '安装PHPStudy （二）是本讲介绍的重要概念，请参考详细说明。'
-explanation: '本题考察对"安装PHPStudy （二）"的理解。- 新建一个PHP文件：hello.php'
+question: 'PHP中的标量数据类型有哪些？单引号和双引号字符串有什么区别？'
+answer: 'PHP标量类型包括：整型(integer)、浮点型(float)、布尔型(boolean)、字符串型(string)。单引号字符串原样输出，不解析变量；双引号字符串会解析变量和转义字符。例如：$name="PHP"; echo "$name"输出PHP，而echo \'$name\'输出$name。'
+explanation: '理解单双引号的区别对字符串处理很重要。双引号会解析其中的变量，适合需要嵌入变量的场景；单引号性能略好，适合纯文本。'
 module: '基础入门'
-tags: ['函数', '数组', '面向对象', '数据库', '文件操作', 'concept']
+tags: ['数据类型', '字符串', 'concept']
 relatedLectures: ['lecture02']
 draft: false
 ---

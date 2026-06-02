@@ -1,9 +1,9 @@
 ---
-question: '什么是安装PhPStudy（一）？'
-answer: '安装PhPStudy（一）是本讲介绍的重要概念，请参考详细说明。'
-explanation: '本题考察对"安装PhPStudy（一）"的理解。- 新建一个PHP文件：hello.php'
+question: 'PHP中的变量命名有哪些规则？'
+answer: 'PHP变量命名规则：1) 必须以$符号开头；2) 区分大小写；3) 可以以_开头；4) 不能以数字开头；5) 只能包含字母、数字和下划线。例如：$name、$_age是合法的；$168、$!name是非法的。'
+explanation: 'PHP变量名区分大小写意味着$name和$Name是两个不同的变量。变量名应该具有描述性，遵循驼峰命名或下划线命名规范以提高代码可读性。'
 module: '基础入门'
-tags: ['函数', '数组', '面向对象', '数据库', '文件操作', 'concept']
+tags: ['变量', 'concept']
 relatedLectures: ['lecture02']
 draft: false
 ---
