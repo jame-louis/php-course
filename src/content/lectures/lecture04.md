@@ -7,7 +7,7 @@ duration: '90分钟'
 difficulty: 'beginner'
 prerequisites: ['lecture03']
 tags: ['数组', '数据结构', '字符串处理']
-hasSlides: true
+hasSlides: false 
 hasAssignment: false
 draft: false
 ---

@@ -7,7 +7,7 @@ duration: '90分钟'
 difficulty: 'beginner'
 prerequisites: []
 tags: ['PHP基础', '环境搭建', 'Web开发']
-hasSlides: true
+hasSlides: false 
 hasAssignment: false
 draft: false
 ---

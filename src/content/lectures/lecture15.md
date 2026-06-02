@@ -14,7 +14,8 @@ tags:
   - 用户认证
   - 安全
   - 生产环境
-hasSlides: false
+hasSlides: true 
+slidevUrl: https://jame-louis.github.io/php/slidev/lecture12
 hasAssignment: true
 draft: false
 ---

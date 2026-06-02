@@ -5,9 +5,9 @@ module: '基础入门'
 description: '学习PHP的条件控制语句（if、switch）和循环控制语句（while、for、foreach），以及跳转控制语句的使用。'
 duration: '90分钟'
 difficulty: 'beginner'
-prerequisites: ['lecture02']
+prerequisites: ['lecture01','lecture02']
 tags: ['流程控制', '条件语句', '循环语句']
-hasSlides: true
+hasSlides: false
 hasAssignment: false
 draft: false
 ---

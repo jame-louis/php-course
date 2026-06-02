@@ -7,7 +7,8 @@ duration: 90分钟
 difficulty: intermediate
 prerequisites: ['lecture06']
 tags: ['PHP', '表单', 'GET', 'POST', '验证', '正则表达式', 'XSS']
-hasSlides: false
+hasSlides: true 
+slidevUrl: https://jame-louis.github.io/php/slidev/lecture08
 hasAssignment: true
 draft: false
 ---

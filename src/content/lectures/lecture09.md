@@ -7,7 +7,8 @@ duration: 90分钟
 difficulty: intermediate
 prerequisites: ['lecture08']
 tags: ['PHP', '文件操作', '文件上传', '目录', 'GD库', '安全']
-hasSlides: false
+hasSlides: true 
+slidevUrl: https://jame-louis.github.io/php/slidev/lecture09
 hasAssignment: true
 draft: false
 ---

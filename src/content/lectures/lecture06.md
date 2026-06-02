@@ -7,7 +7,8 @@ duration: 90分钟
 difficulty: intermediate
 prerequisites: ['lecture05']
 tags: ['PHP', '函数', '参数', '返回值', '作用域', '字符串', 'GD库']
-hasSlides: false
+hasSlides: true 
+slidevUrl: https://jame-louis.github.io/php/slidev/lecture06
 hasAssignment: true
 draft: false
 ---

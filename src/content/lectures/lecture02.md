@@ -7,7 +7,7 @@ duration: '90分钟'
 difficulty: 'beginner'
 prerequisites: ['lecture01']
 tags: ['PHP语法', '变量', '数据类型', '运算符']
-hasSlides: true
+hasSlides: false 
 hasAssignment: false
 draft: false
 ---

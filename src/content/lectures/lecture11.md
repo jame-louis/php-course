@@ -7,7 +7,8 @@ duration: 90分钟
 difficulty: intermediate
 prerequisites: ['lecture10']
 tags: ['PHP', 'Session', 'Cookie', '购物车', '会话管理']
-hasSlides: false
+hasSlides: true 
+slidevUrl: https://jame-louis.github.io/php/slidev/lecture11
 hasAssignment: true
 draft: false
 ---

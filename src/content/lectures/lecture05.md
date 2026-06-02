@@ -7,7 +7,7 @@ duration: '90分钟'
 difficulty: 'intermediate'
 prerequisites: ['lecture04']
 tags: ['函数', '系统函数', '时间日期', '随机数']
-hasSlides: true
+hasSlides: false 
 hasAssignment: true
 draft: false
 ---
