@@ -10,7 +10,7 @@ export const site = {
 export const courseInfo = {
   name: 'PHP',
   subtitle: '专业必修课',
-  description: '在这里填写课程的简要描述，介绍课程目标、适用人群和学习成果。',
+  description: 'PHP基础知识、表单以及数据库操作',
   textbook: '《示例教材》(出版社)',
   prerequisites: '计算机基础、程序设计入门',
   assessment: '出勤(10%) + 平时(30%) + 期末(60%)',
