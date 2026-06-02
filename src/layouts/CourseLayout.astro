@@ -1,0 +1,22 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import MainNav from '../components/navigation/MainNav.astro';
+import Footer from '../components/Footer.astro';
+import Search from '../components/search/Search.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <MainNav />
+  <main class="flex-1">
+    <slot />
+  </main>
+  <Footer />
+  <Search />
+</BaseLayout>

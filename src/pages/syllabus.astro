@@ -1,0 +1,96 @@
+---
+import CourseLayout from '../layouts/CourseLayout.astro';
+import { getCollection } from 'astro:content';
+import { courseModules, courseObjectives, syllabusLabels, labels, pageTitles } from '../config';
+import { validateModules, logModuleWarnings, isValidModule } from '../lib/moduleValidation';
+
+const base = import.meta.env.BASE_URL || '/';
+const lectures = await getCollection('lectures');
+
+// Validate modules and log warnings
+const validation = await validateModules();
+logModuleWarnings(validation);
+
+// Filter to valid modules only
+const validLectures = lectures
+  .filter(l => !l.data.draft && isValidModule(l.data.module))
+  .sort((a, b) => a.data.lectureNumber - b.data.lectureNumber);
+
+// Derive module ranges from actual lecture data
+const moduleStats = courseModules.map(module => {
+  const moduleLectures = validLectures.filter(l => l.data.module === module.name);
+  const numbers = moduleLectures.map(l => l.data.lectureNumber);
+  const min = numbers.length > 0 ? Math.min(...numbers) : null;
+  const max = numbers.length > 0 ? Math.max(...numbers) : null;
+  return {
+    ...module,
+    count: moduleLectures.length,
+    range: min !== null && max !== null ? [min, max] as const : null,
+  };
+}).filter(m => m.count > 0);
+---
+
+<CourseLayout title={pageTitles.syllabus}>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold mb-8">{pageTitles.syllabus}</h1>
+
+    <!-- Course Overview -->
+    <section class="mb-12 bg-bg-secondary rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">{syllabusLabels.objectivesTitle}</h2>
+      <ul class="space-y-2">
+        {courseObjectives.map(obj => (
+          <li class="flex items-start gap-2">
+            <span class="text-primary mt-1">✓</span>
+            <span>{obj}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Modules -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold mb-6">{syllabusLabels.modulesTitle}</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        {moduleStats.map(module => (
+          <div class="bg-white border border-border rounded-lg p-6">
+            <h3 class="font-semibold text-primary mb-2">{module.name}</h3>
+            <p class="text-sm text-text-muted mb-4">{module.description}</p>
+            <div class="text-sm">
+              <span class="font-medium">{syllabusLabels.courseRangeLabel}</span>
+              {module.range
+                ? syllabusLabels.lectureRangeTemplate.replace('{start}', String(module.range[0])).replace('{end}', String(module.range[1]))
+                : '暂无课程'}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Lecture Schedule -->
+    <section>
+      <h2 class="text-xl font-semibold mb-6">{syllabusLabels.scheduleTitle}</h2>
+      <div class="space-y-4">
+        {validLectures.map(lecture => (
+          <div class="flex items-center gap-4 p-4 bg-bg-secondary rounded-lg border border-border">
+            <span class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-md flex items-center justify-center font-bold">
+              {lecture.data.lectureNumber}
+            </span>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-medium truncate">{lecture.data.title}</h4>
+              <div class="flex flex-wrap gap-2 text-sm text-text-muted mt-1">
+                <span>{lecture.data.module}</span>
+                {lecture.data.duration && <span>· {lecture.data.duration}</span>}
+              </div>
+            </div>
+            <a
+              href={`${base}lectures/${lecture.id.replace('.md', '')}`}
+              class="text-sm text-primary hover:text-primary-dark font-medium"
+            >
+              {labels.viewLecture}
+            </a>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</CourseLayout>

@@ -1,0 +1,164 @@
+---
+import CourseLayout from '../layouts/CourseLayout.astro';
+import { getCollection } from 'astro:content';
+import { difficultyLabels, pageTitles, progressLabels, labels } from '../config';
+import { validateModules, logModuleWarnings, isValidModule } from '../lib/moduleValidation';
+
+const base = import.meta.env.BASE_URL || '/';
+const lectures = await getCollection('lectures');
+
+// Validate modules and log warnings
+const validation = await validateModules();
+logModuleWarnings(validation);
+
+const sortedLectures = lectures
+  .filter(l => !l.data.draft && isValidModule(l.data.module))
+  .sort((a, b) => a.data.lectureNumber - b.data.lectureNumber);
+
+// Dynamically group by module
+const moduleMap = new Map<string, typeof sortedLectures>();
+sortedLectures.forEach(l => {
+  const mod = l.data.module || '其他';
+  if (!moduleMap.has(mod)) {
+    moduleMap.set(mod, []);
+  }
+  moduleMap.get(mod)!.push(l);
+});
+
+const moduleEntries = Array.from(moduleMap.entries());
+
+const difficultyColors: Record<string, string> = {
+  beginner: 'bg-green-100 text-green-700',
+  intermediate: 'bg-yellow-100 text-yellow-700',
+  advanced: 'bg-red-100 text-red-700',
+};
+---
+
+<CourseLayout title={pageTitles.lectures}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold">{pageTitles.lectures}</h1>
+      <div class="flex items-center gap-3">
+        <div class="text-sm text-text-muted">
+          共 <span class="font-semibold text-text">{sortedLectures.length}</span> 讲课程
+        </div>
+        <div id="progress-summary" class="hidden text-sm text-primary font-medium"></div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex justify-between text-sm mb-2">
+        <span class="text-text-muted">{progressLabels.label}</span>
+        <span id="progress-text" class="text-text-muted">0%</span>
+      </div>
+      <div class="w-full bg-bg-secondary rounded-full h-2.5 border border-border">
+        <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Lectures by Module -->
+    <div class="space-y-8 sm:space-y-12">
+      {moduleEntries.map(([moduleName, moduleLectures]) => (
+        <section>
+          <h2 class="text-lg sm:text-xl font-semibold text-primary border-b-2 border-primary pb-2 mb-4 sm:mb-6">
+            {moduleName}
+          </h2>
+
+          <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+            {moduleLectures.map(lecture => {
+              const slug = lecture.id.replace('.md', '');
+              return (
+                <a
+                  href={`${base}lectures/${slug}`}
+                  class="group block sm:flex items-start sm:items-center gap-3 sm:gap-4 p-4 bg-bg-secondary rounded-lg border border-border hover:border-primary hover:shadow-md transition-all"
+                  data-slug={slug}
+                >
+                  <!-- Number Badge -->
+                  <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-primary text-white rounded-md flex items-center justify-center font-semibold text-sm sm:text-base">
+                    {lecture.data.lectureNumber}
+                  </span>
+
+                  <!-- Content -->
+                  <div class="flex-1 min-w-0 mt-2 sm:mt-0">
+                    <h3 class="font-medium text-base sm:text-lg group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">
+                      {lecture.data.title}
+                    </h3>
+                    {lecture.data.description && (
+                      <p class="text-sm text-text-muted mt-1 line-clamp-2 sm:line-clamp-1">
+                        {lecture.data.description}
+                      </p>
+                    )}
+                    <div class="flex flex-wrap items-center gap-2 mt-2 sm:hidden">
+                      {lecture.data.duration && (
+                        <span class="text-xs text-text-muted flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {lecture.data.duration}
+                        </span>
+                      )}
+                      <span class={`text-xs px-1.5 py-0.5 rounded ${difficultyColors[lecture.data.difficulty]}`}>
+                        {difficultyLabels[lecture.data.difficulty]}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Desktop: Right side badges -->
+                  <div class="hidden sm:flex items-center gap-2 flex-shrink-0">
+                    {lecture.data.duration && (
+                      <span class="text-xs text-text-muted whitespace-nowrap">
+                        {lecture.data.duration}
+                      </span>
+                    )}
+                    <span class={`text-xs px-2 py-1 rounded whitespace-nowrap ${difficultyColors[lecture.data.difficulty]}`}>
+                      {difficultyLabels[lecture.data.difficulty]}
+                    </span>
+                    <!-- Completion checkmark -->
+                    <span class="completion-check hidden text-green-600" data-slug={slug}>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+
+    <!-- Back Link -->
+    <div class="mt-8 sm:mt-12 p-4 sm:p-6 bg-bg-secondary rounded-lg text-center">
+      <a href={import.meta.env.BASE_URL} class="text-primary hover:text-primary-dark font-medium inline-flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        {labels.back}首页
+      </a>
+    </div>
+  </div>
+
+  <script>
+    import { getCompletionPercentage, isCompleted } from '../lib/progress';
+
+    const total = document.querySelectorAll('[data-slug]').length;
+    const percentage = getCompletionPercentage(total);
+
+    // Update progress bar
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    if (progressBar) progressBar.style.width = percentage + '%';
+    if (progressText) progressText.textContent = percentage + '%';
+
+    // Update completion checkmarks
+    document.querySelectorAll('.completion-check').forEach(el => {
+      const slug = el.getAttribute('data-slug');
+      if (slug && isCompleted(slug)) {
+        el.classList.remove('hidden');
+      }
+    });
+  </script>
+</CourseLayout>

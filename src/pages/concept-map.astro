@@ -1,0 +1,77 @@
+---
+import CourseLayout from '../layouts/CourseLayout.astro';
+import ConceptGraph from '../components/concept-map/ConceptGraph.astro';
+import { generateConceptGraph } from '../lib/conceptGraph';
+
+const graphData = await generateConceptGraph();
+---
+
+<CourseLayout title="知识图谱">
+  <div class="max-w-6xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-3">知识图谱</h1>
+      <p class="text-gray-600">
+        可视化展示课程知识结构，节点表示各讲内容，连线表示前置依赖关系。
+        点击节点可直接跳转到对应课程内容。
+      </p>
+    </header>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">课程依赖关系图</h2>
+        <div class="flex gap-4 text-sm text-gray-600">
+          <span>节点数: <strong class="text-gray-900">{graphData.nodes.length}</strong></span>
+          <span>连接数: <strong class="text-gray-900">{graphData.links.length}</strong></span>
+        </div>
+      </div>
+
+      <ConceptGraph data={graphData} />
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">如何使用</h3>
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-start gap-2">
+            <span class="text-blue-500">•</span>
+            <span><strong>拖拽节点</strong> - 调整布局位置</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-500">•</span>
+            <span><strong>滚轮缩放</strong> - 放大/缩小视图</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-500">•</span>
+            <span><strong>点击节点</strong> - 跳转到课程页面</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-500">•</span>
+            <span><strong>悬停查看</strong> - 显示课程名称</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">颜色说明</h3>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+            <span class="text-gray-600">基础入门 - 课程基础内容</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full bg-purple-500"></div>
+            <span class="text-gray-600">核心概念 - 核心理论与方法</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
+            <span class="text-gray-600">框架应用 - 实践应用（如有）</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full bg-amber-500"></div>
+            <span class="text-gray-600">项目实战 - 综合项目（如有）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</CourseLayout>

@@ -1,0 +1,117 @@
+---
+import { site, mainNavItems } from '../../config';
+
+const base = import.meta.env.BASE_URL || '/';
+const navItems = mainNavItems.map(item => ({
+  ...item,
+  href: item.href === '/' ? base : `${base}${item.href.replace(/^\//, '')}`
+}));
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="bg-white border-b border-border sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <a href={base} class="text-xl font-semibold text-text hover:text-primary transition-colors">
+        {site.title}
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center space-x-8">
+        {navItems.map(item => {
+          const isActive = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+          return (
+            <a
+              href={item.href}
+              class={`font-medium transition-colors ${
+                isActive
+                  ? 'text-primary'
+                  : 'text-text-muted hover:text-primary'
+              }`}
+            >
+              {item.label}
+            </a>
+          );
+        })}
+
+        <!-- Search Trigger -->
+        <button
+          id="search-trigger"
+          class="flex items-center gap-2 px-3 py-1.5 text-sm text-text-muted bg-bg-secondary rounded-lg hover:bg-border transition-colors"
+          aria-label="搜索"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span class="hidden lg:inline">搜索</span>
+          <kbd class="hidden lg:inline-flex items-center px-1.5 py-0.5 bg-white rounded text-xs text-text-muted border border-border">
+            <span>⌘K</span>
+          </kbd>
+        </button>
+      </div>
+
+      <!-- Mobile: Search + Menu Buttons -->
+      <div class="flex items-center gap-2 md:hidden">
+        <button
+          id="search-trigger-mobile"
+          class="p-2 text-text-muted hover:text-primary"
+          aria-label="搜索"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+
+        <button
+          id="mobile-menu-btn"
+          class="p-2 text-text-muted hover:text-primary"
+          aria-label="菜单"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-border">
+    <div class="px-4 py-2 space-y-1">
+      {navItems.map(item => {
+        const isActive = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+        return (
+          <a
+            href={item.href}
+            class={`block px-3 py-2 rounded-md text-base font-medium ${
+              isActive
+                ? 'bg-bg-secondary text-primary'
+                : 'text-text-muted hover:bg-bg-secondary hover:text-primary'
+            }`}
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</nav>
+
+<script>
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileMenuBtn?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('hidden');
+  });
+
+  // Search triggers
+  const triggers = ['search-trigger', 'search-trigger-mobile'];
+  triggers.forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => {
+      (window as any).openSearchModal?.();
+    });
+  });
+</script>

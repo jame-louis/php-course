@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  currentSlug?: string;
+}
+
+const { currentSlug } = Astro.props;
+
+const base = import.meta.env.BASE_URL || '/';
+const lectures = await getCollection('lectures');
+const sortedLectures = lectures
+  .filter(l => !l.data.draft)
+  .sort((a, b) => a.data.lectureNumber - b.data.lectureNumber);
+---
+
+<div class="bg-bg-secondary rounded-lg border border-border p-4">
+  <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wide mb-3">
+    课程导航
+  </h3>
+
+  <nav class="space-y-1">
+    {sortedLectures.map(lecture => {
+      const slug = lecture.id.replace('.md', '');
+      const isActive = currentSlug === slug;
+      return (
+        <a
+          href={`${base}lectures/${slug}`}
+          class={`block px-2 py-1.5 text-sm rounded-md transition-colors ${
+            isActive
+              ? 'bg-primary text-white'
+              : 'text-text hover:bg-white hover:shadow-sm'
+          }`}
+        >
+          <span class="font-medium">{lecture.data.lectureNumber}.</span>
+          <span class="ml-1 truncate">{lecture.data.title.slice(0, 12)}...</span>
+        </a>
+      );
+    })}
+  </nav>
+</div>

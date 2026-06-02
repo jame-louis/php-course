@@ -1,0 +1,65 @@
+---
+import CourseLayout from '../layouts/CourseLayout.astro';
+import { getCollection } from 'astro:content';
+import { assignmentLabels, labels, pageTitles } from '../config';
+
+const base = import.meta.env.BASE_URL || '/';
+const assignments = await getCollection('assignments');
+const sortedAssignments = assignments
+  .filter(a => !a.data.draft)
+  .sort((a, b) => a.data.assignmentNumber - b.data.assignmentNumber);
+---
+
+<CourseLayout title={pageTitles.assignments}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold mb-2">{assignmentLabels.pageTitle}</h1>
+    <p class="text-text-muted mb-8">
+      {assignmentLabels.submissionFormat}
+    </p>
+
+    <div class="space-y-6">
+      {sortedAssignments.map(hw => (
+        <div class="bg-bg-secondary border border-border rounded-lg p-6">
+          <div class="flex items-start gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-md flex items-center justify-center font-semibold">
+              {hw.data.assignmentNumber}
+            </span>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold mb-2">{hw.data.title}</h3>
+              <div class="flex flex-wrap gap-4 text-sm text-text-muted mb-4">
+                {hw.data.dueDate && (
+                  <span>
+                    {assignmentLabels.deadline} {hw.data.dueDate.toLocaleDateString('zh-CN')}
+                  </span>
+                )}
+                <span>{assignmentLabels.estimatedTime} {hw.data.estimatedHours}小时</span>
+                <span>{assignmentLabels.points} {hw.data.points}分</span>
+              </div>
+              <a
+                href={`${base}assignments/${hw.id.replace('.md', '')}`}
+                class="inline-flex items-center text-primary hover:text-primary-dark font-medium"
+              >
+                {labels.viewDetails}
+              </a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Requirements Alert -->
+    <div class="mt-12 bg-amber-50 border border-amber-200 rounded-lg p-6">
+      <h3 class="text-amber-800 font-semibold mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        {assignmentLabels.requirementsTitle}
+      </h3>
+      <ul class="text-amber-700 space-y-2 text-sm">
+        {assignmentLabels.requirements.map(req => (
+          <li>{req}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</CourseLayout>

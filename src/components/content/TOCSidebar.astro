@@ -1,0 +1,70 @@
+---
+import { tocConfig } from '../../config';
+
+interface Props {
+  headings: Array<{ depth: number; slug: string; text: string }>;
+}
+
+const { headings } = Astro.props;
+---
+
+<div class="text-sm" id="toc-sidebar">
+  <p class="font-medium text-text-muted mb-2">{tocConfig.title}</p>
+  <nav class="space-y-1 border-l border-border" id="toc-nav">
+    {headings
+      .filter(h => h.depth <= 3)
+      .map(heading => (
+        <a
+          href={`#${heading.slug}`}
+          data-slug={heading.slug}
+          class={`toc-link block pl-3 py-1 text-sm text-text-muted hover:text-primary transition-colors ${
+            heading.depth === 2 ? 'ml-0' : 'ml-3'
+          }`}
+        >
+          {heading.text}
+        </a>
+      ))}
+  </nav>
+</div>
+
+<script>
+  (function() {
+    const tocLinks = document.querySelectorAll('.toc-link');
+    if (tocLinks.length === 0) return;
+
+    const headingElements = Array.from(tocLinks)
+      .map(link => document.getElementById(link.getAttribute('data-slug') || ''))
+      .filter(Boolean) as HTMLElement[];
+
+    if (headingElements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .map(e => e.target.id);
+
+        if (visible.length === 0) return;
+
+        // Highlight the first visible heading
+        const activeId = visible[0];
+        tocLinks.forEach(link => {
+          const slug = link.getAttribute('data-slug');
+          if (slug === activeId) {
+            link.classList.add('text-primary', 'border-l-2', 'border-primary', '-ml-0.5');
+            link.classList.remove('text-text-muted');
+          } else {
+            link.classList.remove('text-primary', 'border-l-2', 'border-primary', '-ml-0.5');
+            link.classList.add('text-text-muted');
+          }
+        });
+      },
+      {
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+      }
+    );
+
+    headingElements.forEach(h => observer.observe(h));
+  })();
+</script>

@@ -1,0 +1,714 @@
+---
+interface Props {
+  context?: {
+    type: 'lecture' | 'assignment' | 'general';
+    title: string;
+    module?: string;
+    content?: string;
+  };
+}
+
+const { context } = Astro.props;
+---
+
+<div id="ai-tutor-container" class="fixed bottom-4 right-4 z-50" data-context={context ? JSON.stringify(context) : null}>
+  <!-- Floating Button -->
+  <button
+    id="tutor-toggle"
+    class="w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+    aria-label="打开AI导师"
+  >
+    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+    <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white hidden" id="tutor-active-indicator"></span>
+  </button>
+
+  <!-- Chat Panel -->
+  <div id="tutor-panel" class="hidden absolute bottom-16 right-0 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[600px]">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary to-primary-dark p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-white font-semibold">AI 导师</h3>
+          <p class="text-white/80 text-xs">费曼学习法 · 第一性原理</p>
+        </div>
+      </div>
+      <button id="tutor-settings-btn" class="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors" aria-label="设置">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Setup Warning (shown when not configured) -->
+    <div id="tutor-setup-warning" class="hidden bg-yellow-50 border-b border-yellow-200 p-3">
+      <p class="text-yellow-800 text-sm">请配置 API 密钥以使用 AI 导师</p>
+      <button id="tutor-setup-btn" class="text-yellow-600 text-sm font-medium hover:underline mt-1">立即设置 →</button>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="border-b border-border p-2 flex gap-2" id="mode-selector">
+      <button class="tutor-mode-btn active px-3 py-1.5 text-sm rounded-full bg-primary text-white whitespace-nowrap transition-all duration-200 ease-out hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:active:scale-100" data-mode="explain" aria-pressed="true">
+        💡 讲解模式
+      </button>
+      <button class="tutor-mode-btn px-3 py-1.5 text-sm rounded-full bg-bg-secondary text-text-muted hover:bg-border hover:text-text whitespace-nowrap transition-all duration-200 ease-out hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:hover:bg-bg-secondary disabled:active:scale-100" data-mode="breakdown" aria-pressed="false">
+        🔍 第一性原理
+      </button>
+      <button class="tutor-mode-btn px-3 py-1.5 text-sm rounded-full bg-bg-secondary text-text-muted hover:bg-border hover:text-text whitespace-nowrap transition-all duration-200 ease-out hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:hover:bg-bg-secondary disabled:active:scale-100" data-mode="practice" aria-pressed="false">
+        🎯 刻意练习
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="tutor-messages" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px] max-h-[400px]">
+      <!-- Welcome message -->
+      <div class="tutor-message tutor-message-assistant">
+        <div class="flex gap-3">
+          <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm text-text-muted mb-1 font-medium">AI 导师</p>
+            <div class="bg-bg-secondary rounded-2xl rounded-tl-md p-3 text-text">
+              <p class="m-0">你好！我是你的 AI 学习导师，基于<strong>费曼学习法</strong>和<strong>第一性原理</strong>帮助你深入理解知识。</p>
+              <p class="m-0 mt-2">当前页面：<span id="tutor-context-title" class="font-medium">通用学习</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intensity Selector -->
+    <div class="border-t border-border px-4 py-2 flex items-center gap-2 text-xs text-text-muted">
+      <span>难度：</span>
+      <select id="tutor-intensity" class="bg-transparent border-none text-sm text-text focus:outline-none cursor-pointer">
+        <option value="gentle">🌱 循序渐进</option>
+        <option value="standard" selected>⚖️ 标准强度</option>
+        <option value="intense">🔥 高强度</option>
+      </select>
+    </div>
+
+    <!-- Input -->
+    <div class="border-t border-border p-4">
+      <div class="flex gap-2">
+        <textarea
+          id="tutor-input"
+          placeholder="输入问题或选择上方模式..."
+          class="flex-1 bg-bg-secondary rounded-xl px-4 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 border border-border"
+          rows="2"
+        ></textarea>
+        <button id="tutor-send" class="w-10 h-10 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors flex items-center justify-center flex-shrink-0" aria-label="发送">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="tutor-settings-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold">AI 设置</h3>
+        <button id="settings-close" class="text-text-muted hover:text-text">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="tutor-settings-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-text mb-1">AI 提供商</label>
+          <select id="settings-provider" class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+
+        <div id="custom-url-container" class="hidden">
+          <label class="block text-sm font-medium text-text mb-1">API URL</label>
+          <input
+            type="url"
+            id="settings-api-url"
+            placeholder="https://api.example.com/v1/chat"
+            class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+
+        <div id="model-select-container">
+          <label class="block text-sm font-medium text-text mb-1">模型</label>
+          <select id="settings-model" class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+
+        <div id="custom-model-container" class="hidden">
+          <label class="block text-sm font-medium text-text mb-1">自定义模型名称</label>
+          <input
+            type="text"
+            id="settings-custom-model"
+            placeholder="例如：gpt-4, claude-3-opus, 或其他模型名"
+            class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-text mb-1">API 密钥</label>
+          <input
+            type="password"
+            id="settings-api-key"
+            placeholder="sk-..."
+            class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+          <p class="text-xs text-text-muted mt-1">密钥仅存储在您的浏览器本地</p>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="settings-enabled" class="rounded border-border text-primary focus:ring-primary/20" />
+          <label for="settings-enabled" class="text-sm text-text">启用 AI 导师</label>
+        </div>
+
+        <div class="flex gap-2 pt-4">
+          <button type="button" id="settings-cancel" class="flex-1 px-4 py-2 border border-border rounded-lg text-sm hover:bg-bg-secondary transition-colors">
+            取消
+          </button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary-dark transition-colors">
+            保存
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getAISettings, saveAISettings, isAIConfigured, PROVIDER_MODELS, getModelDisplayName } from '../../lib/ai-settings';
+  import { AIClient } from '../../lib/ai-client';
+
+  // DOM Elements
+  const container = document.getElementById('ai-tutor-container');
+  const toggleBtn = document.getElementById('tutor-toggle');
+  const panel = document.getElementById('tutor-panel');
+  const messagesContainer = document.getElementById('tutor-messages');
+  const input = document.getElementById('tutor-input') as HTMLTextAreaElement;
+  const sendBtn = document.getElementById('tutor-send');
+  const modeBtns = document.querySelectorAll('.tutor-mode-btn');
+  const intensitySelect = document.getElementById('tutor-intensity') as HTMLSelectElement;
+  const settingsBtn = document.getElementById('tutor-settings-btn');
+  const setupWarning = document.getElementById('tutor-setup-warning');
+  const setupBtn = document.getElementById('tutor-setup-btn');
+  const settingsModal = document.getElementById('tutor-settings-modal');
+  const settingsClose = document.getElementById('settings-close');
+  const settingsCancel = document.getElementById('settings-cancel');
+  const settingsForm = document.getElementById('tutor-settings-form');
+  const settingsProvider = document.getElementById('settings-provider') as HTMLSelectElement;
+  const settingsModel = document.getElementById('settings-model') as HTMLSelectElement;
+  const settingsCustomModel = document.getElementById('settings-custom-model') as HTMLInputElement;
+  const settingsApiKey = document.getElementById('settings-api-key') as HTMLInputElement;
+  const settingsApiUrl = document.getElementById('settings-api-url') as HTMLInputElement;
+  const settingsEnabled = document.getElementById('settings-enabled') as HTMLInputElement;
+  const customUrlContainer = document.getElementById('custom-url-container');
+  const modelSelectContainer = document.getElementById('model-select-container');
+  const customModelContainer = document.getElementById('custom-model-container');
+  const contextTitle = document.getElementById('tutor-context-title');
+
+  // State
+  let isOpen = false;
+  let currentMode: 'explain' | 'breakdown' | 'practice' = 'explain';
+  let isStreaming = false;
+  let currentAbortController: AbortController | null = null;
+  const context = JSON.parse(container?.getAttribute('data-context') || 'null');
+
+  // Set context title
+  if (context && contextTitle) {
+    contextTitle.textContent = context.title;
+  }
+
+  // Toggle panel
+  toggleBtn?.addEventListener('click', () => {
+    isOpen = !isOpen;
+    panel?.classList.toggle('hidden', !isOpen);
+    toggleBtn?.classList.toggle('bg-primary-dark', isOpen);
+    updateSetupWarning();
+  });
+
+  // Close when clicking outside
+  document.addEventListener('click', (e) => {
+    if (isOpen && !container?.contains(e.target as Node)) {
+      isOpen = false;
+      panel?.classList.add('hidden');
+      toggleBtn?.classList.remove('bg-primary-dark');
+    }
+  });
+
+  // Cleanup stream on page unload
+  window.addEventListener('beforeunload', () => {
+    if (currentAbortController) {
+      currentAbortController.abort();
+    }
+  });
+
+  // Mode selection
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newMode = btn.getAttribute('data-mode') as 'explain' | 'breakdown' | 'practice';
+
+      // Only change if mode is different
+      if (newMode === currentMode) return;
+
+      // Update visual state
+      modeBtns.forEach(b => {
+        const isTarget = b === btn;
+        b.classList.toggle('active', isTarget);
+        b.classList.toggle('bg-primary', isTarget);
+        b.classList.toggle('text-white', isTarget);
+        b.classList.toggle('bg-bg-secondary', !isTarget);
+        b.classList.toggle('text-text-muted', !isTarget);
+        b.setAttribute('aria-pressed', isTarget ? 'true' : 'false');
+      });
+
+      currentMode = newMode;
+      handleModeChange();
+    });
+  });
+
+  // Update mode buttons disabled state based on streaming
+  function updateModeButtonsDisabled(): void {
+    modeBtns.forEach(btn => {
+      btn.disabled = isStreaming;
+    });
+  }
+
+  function handleModeChange() {
+    const modeDescriptions: Record<string, string> = {
+      explain: '我来为你讲解核心概念。理解后请告诉我你的掌握程度（1-5分），我会调整讲解深度。',
+      breakdown: '我们将用第一性原理分解这个主题。我会把复杂概念拆解到最基本的真理，然后逐步构建理解。',
+      practice: '让我们进行刻意练习。选择一个难度，我会给你针对性的练习题。'
+    };
+
+    addMessage(modeDescriptions[currentMode], 'assistant');
+  }
+
+  // Settings modal
+  function openSettings() {
+    const settings = getAISettings();
+    settingsProvider.value = settings.provider;
+
+    // Toggle between model select and custom model input
+    const isCustom = settings.provider === 'custom';
+    modelSelectContainer?.classList.toggle('hidden', isCustom);
+    customModelContainer?.classList.toggle('hidden', !isCustom);
+
+    if (isCustom) {
+      settingsCustomModel.value = settings.model;
+    } else {
+      settingsModel.innerHTML = PROVIDER_MODELS[settings.provider].map(m =>
+        `<option value="${m}">${getModelDisplayName(m)}</option>`
+      ).join('');
+      settingsModel.value = settings.model;
+    }
+
+    settingsApiKey.value = settings.apiKey;
+    settingsApiUrl.value = settings.apiUrl;
+    settingsEnabled.checked = settings.enabled;
+    customUrlContainer?.classList.toggle('hidden', !isCustom);
+    settingsModal?.classList.remove('hidden');
+  }
+
+  function closeSettings() {
+    settingsModal?.classList.add('hidden');
+  }
+
+  settingsBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openSettings();
+  });
+
+  setupBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openSettings();
+  });
+
+  settingsClose?.addEventListener('click', closeSettings);
+  settingsCancel?.addEventListener('click', closeSettings);
+  settingsModal?.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
+  });
+
+  // Provider change updates models
+  settingsProvider?.addEventListener('change', () => {
+    const provider = settingsProvider.value;
+    const isCustom = provider === 'custom';
+
+    // Toggle containers
+    customUrlContainer?.classList.toggle('hidden', !isCustom);
+    modelSelectContainer?.classList.toggle('hidden', isCustom);
+    customModelContainer?.classList.toggle('hidden', !isCustom);
+
+    if (isCustom) {
+      // For custom provider, user will type model name
+      settingsCustomModel.value = '';
+    } else {
+      // For known providers, populate dropdown
+      const models = PROVIDER_MODELS[provider] || [];
+      settingsModel.innerHTML = models.map(m =>
+        `<option value="${m}">${getModelDisplayName(m)}</option>`
+      ).join('');
+    }
+  });
+
+  // Save settings
+  settingsForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const isCustom = settingsProvider.value === 'custom';
+    saveAISettings({
+      provider: settingsProvider.value as 'openai' | 'anthropic' | 'custom',
+      model: isCustom ? settingsCustomModel.value : settingsModel.value,
+      apiKey: settingsApiKey.value,
+      apiUrl: settingsApiUrl.value,
+      enabled: settingsEnabled.checked,
+    });
+    closeSettings();
+    updateSetupWarning();
+  });
+
+  function updateSetupWarning() {
+    const configured = isAIConfigured();
+    setupWarning?.classList.toggle('hidden', configured);
+  }
+
+  // Send message
+  async function sendMessage() {
+    const content = input?.value.trim();
+    if (!content || isStreaming) return;
+
+    if (!isAIConfigured()) {
+      openSettings();
+      return;
+    }
+
+    // Cancel any existing stream
+    if (currentAbortController) {
+      currentAbortController.abort();
+      currentAbortController = null;
+    }
+
+    addMessage(content, 'user');
+    input.value = '';
+
+    const intensity = intensitySelect?.value || 'standard';
+    const systemPrompt = buildSystemPrompt(intensity);
+    const userPrompt = buildUserPrompt(content);
+
+    const assistantDiv = addStreamingMessage();
+    isStreaming = true;
+    updateModeButtonsDisabled();
+    currentAbortController = new AbortController();
+
+    const settings = getAISettings();
+    const client = new AIClient(settings);
+
+    let fullResponse = '';
+
+    try {
+      await client.streamChat(
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        {
+          onChunk: (chunk) => {
+            fullResponse += chunk;
+            updateStreamingMessage(assistantDiv, fullResponse);
+          },
+          onComplete: () => {
+            isStreaming = false;
+            currentAbortController = null;
+            updateModeButtonsDisabled();
+            finalizeStreamingMessage(assistantDiv, fullResponse);
+            addUnderstandingRating();
+          },
+          onError: (error) => {
+            isStreaming = false;
+            currentAbortController = null;
+            updateModeButtonsDisabled();
+            finalizeStreamingMessage(assistantDiv, fullResponse);
+            addMessage(`请求失败：${error.message}`, 'assistant');
+          }
+        },
+        { signal: currentAbortController.signal }
+      );
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        isStreaming = false;
+        currentAbortController = null;
+        updateModeButtonsDisabled();
+        finalizeStreamingMessage(assistantDiv, fullResponse || '已取消');
+        return;
+      }
+      isStreaming = false;
+      currentAbortController = null;
+      updateModeButtonsDisabled();
+      finalizeStreamingMessage(assistantDiv, fullResponse);
+      addMessage(`请求失败：${error instanceof Error ? error.message : '未知错误'}`, 'assistant');
+    }
+  }
+
+  function buildSystemPrompt(intensity: string): string {
+    const basePrompt = `你是一位精通费曼学习法和第一性原理的AI导师。你的目标是帮助学习者深入理解核心概念（20%的重要内容带来80%的理解）。
+
+当前学习主题：${context?.title || '通用主题'}
+${context?.module ? `所属模块：${context.module}` : ''}
+
+核心原则：
+1. **第一性原理**：将复杂概念拆解到最基本的真理，然后逐步构建理解
+2. **费曼技巧**：用简单语言解释，避免 jargon，使用类比和具体例子
+3. **80/20法则**：专注于最核心的20%概念，忽略边缘细节
+4. **刻意练习**：提供恰到好处的挑战，不重复已掌握的内容
+
+当前难度设置：${intensity}
+- gentle：用生活化的类比，循序渐进，多鼓励
+- standard：平衡深度和易懂性，适时挑战
+- intense：要求精确性，深入追问，高强度练习`;
+
+    const modePrompts: Record<string, string> = {
+      explain: `${basePrompt}
+
+讲解模式指南：
+- 先给出核心要点的简明概述（一句话）
+- 用类比解释抽象概念
+- 解释"为什么"比"是什么"更重要
+- 讲解后询问理解程度，准备根据反馈调整深度`,
+
+      breakdown: `${basePrompt}
+
+第一性原理分解模式指南：
+- 问"这是什么的最基本构成？"
+- 逐步分解：识别基本真理 → 建立联系 → 构建完整图景
+- 每个步骤都说明"这一步为什么是必要的"
+- 最后总结：从基本原理如何到达当前概念`,
+
+      practice: `${basePrompt}
+
+刻意练习模式指南：
+- 给出概念后立即测试理解
+- 问题要具体，能检验真正的理解而非记忆
+- 如果答对，增加难度；如果答错，退一步重新讲解
+- 重点关注容易误解的地方`
+    };
+
+    return modePrompts[currentMode] || basePrompt;
+  }
+
+  function buildUserPrompt(content: string): string {
+    return `学习者问：${content}
+
+请根据上述系统提示的原则回答。记住：
+1. 简明扼要，聚焦核心
+2. 使用类比和例子
+3. 回答后我会告诉你我的理解程度（1-5分），请准备调整`;
+  }
+
+  function addMessage(content: string, role: 'user' | 'assistant'): void {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `tutor-message tutor-message-${role}`;
+    messageDiv.innerHTML = `
+      <div class="flex gap-3 ${role === 'user' ? 'flex-row-reverse' : ''}">
+        <div class="w-8 h-8 ${role === 'assistant' ? 'bg-primary' : 'bg-gray-400'} rounded-full flex items-center justify-center flex-shrink-0">
+          ${role === 'assistant'
+            ? '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>'
+            : '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>'
+          }
+        </div>
+        <div class="flex-1 ${role === 'user' ? 'text-right' : ''}">
+          <p class="text-sm text-text-muted mb-1 font-medium">${role === 'assistant' ? 'AI 导师' : '你'}</p>
+          <div class="${role === 'assistant' ? 'bg-bg-secondary rounded-2xl rounded-tl-md' : 'bg-primary text-white rounded-2xl rounded-tr-md'} p-3 text-text inline-block text-left max-w-full">
+            <div class="prose-custom prose-sm ${role === 'user' ? 'text-white' : ''}">${formatContent(content)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    messagesContainer?.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  function addStreamingMessage(): HTMLDivElement {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'tutor-message tutor-message-assistant';
+    messageDiv.innerHTML = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm text-text-muted mb-1 font-medium">AI 导师</p>
+          <div class="bg-bg-secondary rounded-2xl rounded-tl-md p-3 text-text min-h-[40px]">
+            <span class="streaming-content"></span>
+            <span class="animate-pulse">▊</span>
+          </div>
+        </div>
+      </div>
+    `;
+    messagesContainer?.appendChild(messageDiv);
+    scrollToBottom();
+    return messageDiv;
+  }
+
+  function updateStreamingMessage(messageDiv: HTMLDivElement, content: string): void {
+    const contentSpan = messageDiv.querySelector('.streaming-content');
+    if (contentSpan) {
+      contentSpan.innerHTML = formatContent(content);
+    }
+    scrollToBottom();
+  }
+
+  function finalizeStreamingMessage(messageDiv: HTMLDivElement, content: string): void {
+    const contentSpan = messageDiv.querySelector('.streaming-content');
+    const cursor = messageDiv.querySelector('.animate-pulse:last-child');
+    if (contentSpan) {
+      contentSpan.innerHTML = formatContent(content);
+    }
+    if (cursor) {
+      cursor.remove();
+    }
+  }
+
+  function formatContent(content: string): string {
+    // Simple markdown formatting
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function addUnderstandingRating(): void {
+    const ratingDiv = document.createElement('div');
+    ratingDiv.className = 'tutor-rating mt-2 ml-11';
+    ratingDiv.innerHTML = `
+      <p class="text-xs text-text-muted mb-2">理解程度如何？</p>
+      <div class="flex gap-1">
+        ${[1, 2, 3, 4, 5].map(n => `
+          <button class="rating-btn w-8 h-8 rounded-lg border border-border hover:bg-primary hover:text-white hover:border-primary transition-colors text-sm" data-rating="${n}">
+            ${n}
+          </button>
+        `).join('')}
+      </div>
+      <p class="rating-feedback text-xs text-primary mt-2 hidden"></p>
+    `;
+
+    messagesContainer?.appendChild(ratingDiv);
+
+    ratingDiv.querySelectorAll('.rating-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rating = parseInt(btn.getAttribute('data-rating') || '3');
+        handleRating(rating, ratingDiv);
+      });
+    });
+
+    scrollToBottom();
+  }
+
+  function handleRating(rating: number, ratingDiv: HTMLElement): void {
+    const feedback: Record<number, string> = {
+      1: '完全没懂。让我用完全不同的方式重新解释...',
+      2: '有些模糊。我会退一步，从更基础的概念开始...',
+      3: '基本理解，但还有疑问。让我澄清关键点...',
+      4: '理解不错！让我们深入一个更复杂的例子...',
+      5: '完全掌握！准备好挑战更难的问题了。'
+    };
+
+    const feedbackEl = ratingDiv.querySelector('.rating-feedback');
+    if (feedbackEl) {
+      feedbackEl.textContent = feedback[rating];
+      feedbackEl.classList.remove('hidden');
+    }
+
+    ratingDiv.querySelectorAll('.rating-btn').forEach((btn, i) => {
+      if (i < rating) {
+        btn.classList.add('bg-primary', 'text-white', 'border-primary');
+      }
+      (btn as HTMLButtonElement).disabled = true;
+    });
+
+    // Auto-send follow-up for low ratings
+    if (rating <= 3) {
+      setTimeout(() => {
+        input.value = feedback[rating];
+        sendMessage();
+      }, 500);
+    }
+  }
+
+  function scrollToBottom(): void {
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  // Event listeners
+  sendBtn?.addEventListener('click', sendMessage);
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Initialize
+  updateSetupWarning();
+</script>
+
+<style>
+  .tutor-message {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tutor-rating {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  #tutor-panel {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+
+  #tutor-panel:not(.hidden) {
+    animation: slideUp 0.2s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

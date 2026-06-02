@@ -1,0 +1,301 @@
+---
+import type { GraphData, GraphNode, GraphLink } from '../../lib/conceptGraph';
+
+interface Props {
+  data: GraphData;
+}
+
+const { data } = Astro.props;
+const nodesJson = JSON.stringify(data.nodes);
+const linksJson = JSON.stringify(data.links);
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<div class="concept-graph-container">
+  <div class="graph-controls">
+    <button id="reset-zoom" class="control-btn" title="重置视图">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/>
+        <path d="M3 3v9h9"/>
+      </svg>
+    </button>
+    <button id="toggle-forces" class="control-btn active" title="切换物理模拟">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v6m0 6v6m4.22-10.22l4.24-4.24M6.34 17.66l-4.24 4.24M23 12h-6m-6 0H1m20.24 4.24l-4.24-4.24M6.34 6.34L2.1 2.1"/>
+      </svg>
+    </button>
+  </div>
+  <div id="concept-graph" class="concept-graph" data-nodes={nodesJson} data-links={linksJson} data-base={baseUrl}></div>
+  <div class="graph-legend">
+    <div class="legend-item">
+      <span class="legend-dot module-基础入门"></span>
+      <span>基础入门</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot module-核心概念"></span>
+      <span>核心概念</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-line"></span>
+      <span>前置依赖</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import * as d3 from 'd3';
+
+  function initConceptGraph() {
+  const container = document.getElementById('concept-graph');
+  if (!container) return;
+
+  const nodes = JSON.parse(container.dataset.nodes || '[]');
+  const links = JSON.parse(container.dataset.links || '[]');
+
+  const width = container.clientWidth;
+  const height = 500;
+
+  const svg = d3.select('#concept-graph')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height]);
+
+  // Add zoom behavior
+  const g = svg.append('g');
+
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.3, 3])
+    .on('zoom', (event) => {
+      g.attr('transform', event.transform);
+    });
+
+  svg.call(zoom);
+
+  // Define arrow marker
+  svg.append('defs').append('marker')
+    .attr('id', 'arrowhead')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 28)
+    .attr('refY', 0)
+    .attr('markerWidth', 6)
+    .attr('markerHeight', 6)
+    .attr('orient', 'auto')
+    .append('path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('fill', '#94a3b8');
+
+  // Create force simulation
+  const simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id((d: any) => d.id).distance(100))
+    .force('charge', d3.forceManyBody().strength(-400))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(45));
+
+  // Create links
+  const link = g.append('g')
+    .attr('class', 'links')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('stroke', '#94a3b8')
+    .attr('stroke-width', 2)
+    .attr('marker-end', 'url(#arrowhead)');
+
+  // Create nodes
+  const node = g.append('g')
+    .attr('class', 'nodes')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+    .attr('class', 'node')
+    .call(d3.drag<any, any>()
+      .on('start', dragstarted)
+      .on('drag', dragged)
+      .on('end', dragended));
+
+  // Add circles to nodes
+  node.append('circle')
+    .attr('r', 20)
+    .attr('fill', (d: any) => {
+      const colors: Record<string, string> = {
+        '基础入门': '#3b82f6',
+        '核心概念': '#8b5cf6',
+        '框架应用': '#10b981',
+        '项目实战': '#f59e0b',
+      };
+      return colors[d.module] || '#6b7280';
+    })
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 3)
+    .style('cursor', 'pointer');
+
+  // Add labels
+  node.append('text')
+    .text((d: any) => d.label)
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .attr('fill', 'white')
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .style('pointer-events', 'none');
+
+  // Add title tooltips
+  node.append('title')
+    .text((d: any) => `${d.name}\n模块: ${d.module}`);
+
+  // Click to navigate
+  const baseUrl = container.dataset.base || '/';
+  node.on('click', (event: MouseEvent, d: any) => {
+    window.location.href = `${baseUrl}lectures/${d.id}`;
+  });
+
+  // Update positions on tick
+  simulation.on('tick', () => {
+    link
+      .attr('x1', (d: any) => d.source.x)
+      .attr('y1', (d: any) => d.source.y)
+      .attr('x2', (d: any) => d.target.x)
+      .attr('y2', (d: any) => d.target.y);
+
+    node.attr('transform', (d: any) => `translate(${d.x},${d.y})`);
+  });
+
+  // Drag functions
+  function dragstarted(event: any, d: any) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(event: any, d: any) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function dragended(event: any, d: any) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  // Reset zoom button
+  document.getElementById('reset-zoom')?.addEventListener('click', () => {
+    svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+  });
+
+  // Toggle forces button
+  let forcesEnabled = true;
+  const toggleBtn = document.getElementById('toggle-forces');
+  toggleBtn?.addEventListener('click', () => {
+    forcesEnabled = !forcesEnabled;
+    toggleBtn.classList.toggle('active', forcesEnabled);
+    if (forcesEnabled) {
+      simulation.restart();
+    } else {
+      simulation.stop();
+    }
+  });
+  }
+
+  initConceptGraph();
+</script>
+
+<style>
+  .concept-graph-container {
+    position: relative;
+    background: var(--color-bg-secondary, #f8fafc);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .concept-graph {
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+  }
+
+  .concept-graph svg {
+    display: block;
+  }
+
+  .graph-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .control-btn:hover {
+    background: var(--color-bg-secondary, #f8fafc);
+  }
+
+  .control-btn.active {
+    background: var(--color-primary, #3b82f6);
+    color: white;
+    border-color: var(--color-primary, #3b82f6);
+  }
+
+  .graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+
+  .legend-dot.module-基础入门 {
+    background: #3b82f6;
+  }
+
+  .legend-dot.module-核心概念 {
+    background: #8b5cf6;
+  }
+
+  .legend-line {
+    width: 24px;
+    height: 2px;
+    background: #94a3b8;
+  }
+
+  .node:hover circle {
+    filter: brightness(1.1);
+    transform: scale(1.1);
+  }
+
+  .node {
+    transition: transform 0.2s;
+  }
+</style>

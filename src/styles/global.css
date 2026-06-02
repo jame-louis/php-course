@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-bg text-text antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a {
+    @apply text-primary hover:text-primary-dark transition-colors;
+  }
+
+  code {
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  }
+
+  /* Improve touch targets on mobile */
+  @media (max-width: 640px) {
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}
+
+@layer components {
+  .prose-custom {
+    @apply max-w-none;
+  }
+
+  /* Responsive typography */
+  .prose-custom h1 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4;
+  }
+
+  .prose-custom h2 {
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold mt-5 sm:mt-6 mb-2 sm:mb-3 pb-2 border-b border-border;
+  }
+
+  .prose-custom h3 {
+    @apply text-base sm:text-lg lg:text-xl font-semibold mt-4 sm:mt-5 mb-2;
+  }
+
+  .prose-custom h4 {
+    @apply text-sm sm:text-base font-semibold mt-4 mb-1;
+  }
+
+  .prose-custom p {
+    @apply my-3 sm:my-4 leading-relaxed text-sm sm:text-base;
+  }
+
+  .prose-custom ul, .prose-custom ol {
+    @apply my-3 sm:my-4 pl-4 sm:pl-6;
+  }
+
+  .prose-custom li {
+    @apply my-1 text-sm sm:text-base;
+  }
+
+  .prose-custom pre {
+    @apply bg-code-bg text-slate-200 p-3 sm:p-4 rounded-lg overflow-x-auto my-3 sm:my-4 text-xs sm:text-sm;
+  }
+
+  .prose-custom pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-custom code {
+    @apply bg-bg-secondary px-1.5 py-0.5 rounded text-xs sm:text-sm;
+  }
+
+  .prose-custom blockquote {
+    @apply border-l-4 border-primary bg-bg-secondary p-3 sm:p-4 my-3 sm:my-4 rounded-r text-sm sm:text-base;
+  }
+
+  .prose-custom table {
+    @apply w-full border-collapse my-3 sm:my-4 text-xs sm:text-sm;
+  }
+
+  .prose-custom th, .prose-custom td {
+    @apply border border-border p-2 text-left;
+  }
+
+  .prose-custom th {
+    @apply bg-bg-secondary font-semibold;
+  }
+
+  .prose-custom hr {
+    @apply border-border my-6 sm:my-8;
+  }
+
+  /* Mobile: Allow horizontal scroll for wide tables */
+  .prose-custom .table-wrapper {
+    @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+  }
+}
+
+@layer utilities {
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Safe area padding for mobile */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
