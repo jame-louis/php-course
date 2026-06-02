@@ -16,6 +16,14 @@ export const courseInfo = {
   assessment: '出勤(10%) + 平时(30%) + 期末(60%)',
 } as const;
 
+// Course objectives (for syllabus)
+export const courseObjectives = [
+  '掌握PHP的基本语法和语义',
+  '理解PHPStudy环境搭建',
+  '熟练使用PHP和MySQL进行Web开发',
+  '具备独立分析和解决PHP相关问题的能力',
+] as const;
+
 // Home page actions
 export const homeActions = {
   primary: { label: '开始学习', href: '/lectures' },
@@ -67,7 +75,7 @@ export const labels = {
   viewAll: '查看全部 →',
   viewDetails: '查看详情 →',
   viewLecture: '查看 →',
-  back: '← 返回',
+  back: '返回',
   previous: '上一讲',
   next: '下一讲',
   none: '没有了',
@@ -125,14 +133,6 @@ export const infoSectionLabels = {
 export const tocConfig = {
   title: '本页目录',
 } as const;
-
-// Course objectives (for syllabus)
-export const courseObjectives = [
-  '掌握现代前端开发的核心概念和技术栈',
-  '熟练使用主流前端框架进行项目开发',
-  '理解响应式设计和组件化开发思想',
-  '具备独立分析和解决前端问题的能力',
-] as const;
 
 export const categoryLabels: Record<string, string> = {
   lectures: '讲义',
