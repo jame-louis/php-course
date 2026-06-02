@@ -24,13 +24,6 @@ Generate lecture content and self-checks from `_source/lecturexx.md` files.
 ## Module Assignment Rules
 
 Modules are dynamically loaded from `src/config.ts`'s `courseModules` array. Lectures are distributed evenly across available modules.
-
-For example, with 4 modules and max 16 lectures:
-- Lectures 1-4 → Module 1
-- Lectures 5-8 → Module 2
-- Lectures 9-12 → Module 3
-- Lectures 13-16 → Module 4
-
 User can override during confirmation step.
 
 ## Self-Check Generation
@@ -55,10 +48,6 @@ Lecture frontmatter includes:
 - `hasSlides`, `hasAssignment`, `draft`
 
 ---
-
-## Implementation
-
-This skill executes `scripts/generate-lecture.cjs` with the provided arguments.
 
 ### Workflow
 
